@@ -1,10 +1,44 @@
+import Gameboard from "./components/Gameboard.jsx";
+
 function App() {
+  // for now set up a constant array
+  const cardArray = [
+    {
+      id: 1,
+      imgUrl: "",
+      text: "Card1",
+      selected: false,
+    },
+    {
+      id: 2,
+      imgUrl: "",
+      text: "Card2",
+      selected: false,
+    },
+    {
+      id: 3,
+      imgUrl: "",
+      text: "Card3",
+      selected: false,
+    },
+  ];
+
   return (
     <>
-      <p>Hello world</p>
+      <Header />
+      <ScoreDisplay />
+      <Gameboard cards={cardArray} />
     </>
   );
 }
+
+const Header = () => {
+  return <header>gtpWebDev Memory Game</header>;
+};
+
+const ScoreDisplay = () => {
+  return <div>Score Display</div>;
+};
 
 export default App;
 

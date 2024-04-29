@@ -1,0 +1,13 @@
+.gameboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 10px;
+}
+
+.card {
+  border: 2px solid white;
+  width: 100px;
+  height: 100px;
+  display: grid;
+  place-items: center;
+}
