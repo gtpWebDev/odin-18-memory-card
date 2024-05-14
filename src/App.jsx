@@ -4,9 +4,11 @@ import Gameboard from "./components/Gameboard.jsx";
 import ScoreDisplay from "./components/ScoreDisplay.jsx";
 import Header from "./components/Header.jsx";
 
-function App() {
-  // for now set up a constant array
+import getFxhashProjectData from "./utility/apiQuery.js";
 
+const internetWorking = true;
+
+function App() {
   const numberOfCards = 12;
 
   const [cardArray, setCardArray] = useState([]);
@@ -40,7 +42,7 @@ function App() {
     randomiseCards();
   };
 
-  const cbfn_endGame = (cardId) => {
+  const cbfn_endGame = () => {
     // update top score if appropriate, reset score, reset card selections
     currentScore > topScore ? setTopScore(currentScore) : null;
     setCurrentScore(0);
@@ -51,20 +53,40 @@ function App() {
   useEffect(() => {
     console.log("Useeffect");
 
-    // pretend collecting array details from an API
+    async function getImageData() {
+      let constructedArray = [];
 
-    let constructedArray = [];
-    for (let i = 0; i < numberOfCards; i++) {
-      const card = {
-        id: i,
-        rand: Math.random(),
-        imgUrl: "",
-        text: Math.round(500 * Math.random()).toString(),
-        selected: false,
-      };
-      constructedArray.push(card);
+      if (internetWorking) {
+        // collect image data from fxhash API
+        for (let i = 0; i < numberOfCards; i++) {
+          const imageData = await getFxhashProjectData();
+          const card = {
+            id: i,
+            rand: Math.random(),
+            imgUrl: imageData.thumbnailUrl,
+            text: imageData.projectName + " by " + imageData.artistName,
+            selected: false,
+          };
+          constructedArray.push(card);
+        }
+        setCardArray(constructedArray);
+      } else {
+        // pretend collecting array details from an API
+        let constructedArray = [];
+        for (let i = 0; i < numberOfCards; i++) {
+          const card = {
+            id: i,
+            rand: Math.random(),
+            imgUrl: "",
+            text: Math.round(500 * Math.random()).toString(),
+            selected: false,
+          };
+          constructedArray.push(card);
+        }
+        setCardArray(constructedArray);
+      }
     }
-    setCardArray(constructedArray);
+    getImageData();
 
     return () => {
       console.log("Clean up");

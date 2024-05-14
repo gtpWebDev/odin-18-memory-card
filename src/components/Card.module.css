@@ -1,7 +1,12 @@
 .card {
   border: 2px solid white;
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   display: grid;
   place-items: center;
+}
+
+img {
+  width: 130px;
+  height: 130px;
 }
