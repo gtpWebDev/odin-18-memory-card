@@ -13,4 +13,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   To do list:
     - complete front end - mainly titles and scores
     - add a thank you to fxhash
+    - for another time, improve fetch structure to parallel fetch or collecting all projects in one fetch
 */

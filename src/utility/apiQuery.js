@@ -1,4 +1,4 @@
-const fxhashApiAddress = "https://api.v2-temp.fxhash.xyz/graphql6";
+const fxhashApiAddress = "https://api.v2-temp.fxhash.xyz/graphql";
 
 const projectImageArray = [
   2, 20000, 16111, 79, 10363, 14, 15924, 2193, 15377, 86, 11104, 2613, 16217,
