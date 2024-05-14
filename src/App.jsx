@@ -6,14 +6,15 @@ import Header from "./components/Header.jsx";
 
 import getFxhashProjectData from "./utility/apiQuery.js";
 
-const internetWorking = true;
-
 function App() {
   const numberOfCards = 12;
 
   const [cardArray, setCardArray] = useState([]);
   const [currentScore, setCurrentScore] = useState(0);
   const [topScore, setTopScore] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [errorText, setErrorText] = useState("");
 
   const updateSelectedCard = (id) => {
     const cardIndex = cardArray.findIndex((card) => card.id === id);
@@ -29,21 +30,18 @@ function App() {
   };
 
   const resetCards = () => {
-    // reset all selected cards to not selected
     let arrayCopy = cardArray;
     arrayCopy.forEach((element) => (element.selected = false));
     setCardArray(arrayCopy);
   };
 
   const cbfn_continueGame = (cardId) => {
-    // update card to selected, iterate score and randomise cards
     setCurrentScore(currentScore + 1);
     updateSelectedCard(cardId);
     randomiseCards();
   };
 
   const cbfn_endGame = () => {
-    // update top score if appropriate, reset score, reset card selections
     currentScore > topScore ? setTopScore(currentScore) : null;
     setCurrentScore(0);
     resetCards();
@@ -51,45 +49,26 @@ function App() {
   };
 
   useEffect(() => {
-    console.log("Useeffect");
-
+    setIsLoading(true);
     async function getImageData() {
-      let constructedArray = [];
-
-      if (internetWorking) {
-        // collect image data from fxhash API
-        for (let i = 0; i < numberOfCards; i++) {
-          const imageData = await getFxhashProjectData();
-          const card = {
-            id: i,
-            rand: Math.random(),
-            imgUrl: imageData.thumbnailUrl,
-            text: imageData.projectName + " by " + imageData.artistName,
-            selected: false,
-          };
-          constructedArray.push(card);
-        }
-        setCardArray(constructedArray);
-      } else {
-        // pretend collecting array details from an API
-        let constructedArray = [];
-        for (let i = 0; i < numberOfCards; i++) {
-          const card = {
-            id: i,
-            rand: Math.random(),
-            imgUrl: "",
-            text: Math.round(500 * Math.random()).toString(),
-            selected: false,
-          };
-          constructedArray.push(card);
-        }
-        setCardArray(constructedArray);
-      }
+      // collect image data from fxhash API
+      // trying out old style promise structure rather than handling error in async function
+      getFxhashProjectData(numberOfCards)
+        .then((res) => {
+          setCardArray(res);
+        })
+        .catch(() => {
+          setIsError(true);
+          setErrorText("Sorry, the fxhash project data is unavailable");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
     getImageData();
 
     return () => {
-      console.log("Clean up");
+      // Cancelling an async function is non trivial. no clean up required. once only load at app level
     };
   }, []);
 
@@ -97,11 +76,16 @@ function App() {
     <>
       <Header />
       <ScoreDisplay currentScore={currentScore} topScore={topScore} />
-      <Gameboard
-        cards={cardArray}
-        continueGameFn={cbfn_continueGame}
-        endGameFn={cbfn_endGame}
-      />
+      {isLoading ? <p>Loading pics</p> : null}
+      {isError ? (
+        <p>{errorText}</p>
+      ) : (
+        <Gameboard
+          cards={cardArray}
+          continueGameFn={cbfn_continueGame}
+          endGameFn={cbfn_endGame}
+        />
+      )}
     </>
   );
 }

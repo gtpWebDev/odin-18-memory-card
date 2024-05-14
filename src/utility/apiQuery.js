@@ -1,4 +1,4 @@
-const fxhashApiAddress = "https://api.v2-temp.fxhash.xyz/graphql";
+const fxhashApiAddress = "https://api.v2-temp.fxhash.xyz/graphql6";
 
 const projectImageArray = [
   2, 20000, 16111, 79, 10363, 14, 15924, 2193, 15377, 86, 11104, 2613, 16217,
@@ -8,16 +8,44 @@ const projectImageArray = [
   14048, 2332, 1600, 21450, 20002, 4060, 4231, 21727,
 ];
 
-async function getFxhashProjectData() {
-  const randProjectId = selectFxhashProject();
-  const apiResponse = await fxhashApi_projectInfo(randProjectId);
-  return apiResponse;
+async function getFxhashProjectData(numberOfProjects) {
+  let collectedProjects = [];
+  let projectInfoArray = [];
+
+  for (let i = 0; i < numberOfProjects; i++) {
+    let newProjectId = selectNewFxhashProject(collectedProjects);
+    collectedProjects.push(newProjectId);
+
+    const apiResponse = await fxhashApi_projectInfo(newProjectId);
+
+    if (apiResponse.success) {
+      const data = apiResponse.data;
+      const project = {
+        id: i,
+        rand: Math.random(),
+        imgUrl: data.thumbnailUrl,
+        text: data.projectName + " by " + data.artistName,
+        selected: false,
+      };
+      projectInfoArray.push(project);
+    } else {
+      throw "Error collecting Fxhash data";
+    }
+  }
+  return projectInfoArray;
 }
 
-function selectFxhashProject() {
+function selectNewFxhashProject(collectedProjects) {
+  // collect a project id which isn't already contained in collectedProjects
   let totalImages = projectImageArray.length;
-  let randomNum = Math.floor(Math.random() * totalImages);
-  return projectImageArray[randomNum];
+
+  let chosenProject;
+  do {
+    const randomNum = Math.floor(Math.random() * totalImages);
+    chosenProject = projectImageArray[randomNum];
+  } while (collectedProjects.includes(chosenProject));
+
+  return chosenProject;
 }
 
 async function fxhashApi_projectInfo(projectId) {
@@ -57,9 +85,11 @@ async function fxhashApi_projectInfo(projectId) {
 
     const projectName = fxhashProjectResult.name;
 
-    return { artistName, projectName, thumbnailUrl };
-  } catch (error) {
-    console.log(error);
+    const data = { artistName, projectName, thumbnailUrl };
+
+    return { success: true, data };
+  } catch (err) {
+    return { success: false };
   }
 }
 
